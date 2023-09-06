@@ -1,31 +1,61 @@
 #include <iostream>
 #include <immintrin.h>
+#include "node.h"
 
+#define XOR128(a, b) _mm_xor_si128(a, b)
+#define AND128(a, b) _mm_and_si128(a, b)
+#define ROT32(x) _mm256_shuffle_epi32((x), _mm_shuffle(2, 3, 0, 1))
 
-#define xor128(a, b) _mm_xor_si128(a, b)
-#define and128(a, b) _mm_and_si128(a, b)
-#define rot32(x) _mm256_shuffle_epi32((x), _mm_shuffle(2, 3, 0, 1))
+#define STORE128(p,r) _mm_store_si128((__m128i *)(p), r)
 
-#define load128(p)  _mm_load_si128( (__m128i *)(p) )
-#define store128(p,r) _mm_store_si128((__m128i *)(p), r)
+#define ADD128(x,y)        _mm_add_epi64(x,y)
+#define SUB128(x,y)        _mm_sub_epi64(x,y)
+#define MUL128(x,y)        _mm_mul_epi32(x,y)
+#define MOD128(x, y)       _mm_mullo_epi32(x, y )
+#define LENGTH 64
 
-#define add128(x,y)        _mm_add_epi64(x,y)
-#define sub128(x,y)        _mm_sub_epi64(x,y)
-#define mul128(x,y)        _mm_mul_epi32(x,y)
+bintree_t tree;
 
-#define length 64
+__m128i T;
+
+void write(int len) {
+ nodexpand(&tree);
+
+ for(int i = 0; i < len ; i++) {
+
+     /*Put T as r + p words (aligned)*/
+     nodeput(&tree, LOAD128(&T), i);
+     arth0x(&tree, i );
+
+ }
+}
 
 void red0x(){
-    __m128i b, n, nx, r, t;
+
+    __m128i B, N, NX, R, T;
     __m128i ones = _mm_set1_epi64x((uint64_t)1 >> 63);
+    uint8_t r, p = 2;
 
-    n = and128(b, n);
-    store128(&b, n);
-    nx = sub128(b, ones);
+    /*B & N  = B % N */
+    N = MOD128(B, N);
 
-    /*b^r writing one word to heap*/
-    r = mul128(b, ones  );
+    /*-1 mod b =  b - 1*/
+    NX = SUB128(B, ones);
+
+    R = MUL128(B, ones);
+    T = SUB128(MUL128(R , N), ones);
+    LOAD128(&T);
+
+    /* T in the range 0 ≤ T < RN, stored as an array of r + p words. */
+    write(r + p);
 
 
+
+
+}
+
+
+int main(){
+ red0x();
 
 }
