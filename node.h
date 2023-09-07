@@ -54,12 +54,11 @@ void nodeput(bintree_t * tree, __m128i val, uint32_t nodeid){
 
 void arth0x(bintree_t * tree, uint32_t nodeid){
 
- int i = 0;
 
  bintree_element_t* node = &tree->nodes[nodeid];
 
 
- for(i; i < &tree->nodes[64].left_id; i++  ){
+ for(int i = 0; i < LENGTH; i++  ){
   i++;
   LOAD128(&node[i].complete);
   printf("%llu", &node[i].complete[0]);
