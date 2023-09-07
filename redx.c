@@ -1,4 +1,6 @@
-#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <immintrin.h>
 #include "node.h"
 
@@ -33,6 +35,7 @@ void write(int len) {
      nodeput(&tree, ROT16(LOAD128(&T) * 0xff), i);
      arth0x(&tree, i );
 
+
  }
 }
 
@@ -40,7 +43,8 @@ void red0x(){
 
     __m128i B, N, NX, R, T;
     __m128i ones = _mm_set1_epi64x((uint64_t)1 >> 63);
-    uint8_t r, p = 1;
+    uint8_t r = 1;
+    uint8_t p = 1;
 
     /*B & N  = B % N */
     N = MOD128(B, N);
