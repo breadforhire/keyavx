@@ -1,65 +1,96 @@
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <immintrin.h>
-#include "node.h"
 
-#define ROTATE16 16
-
-#define XOR128(a, b) _mm_xor_si128(a, b)
-#define AND128(a, b) _mm_and_si128(a, b)
-
-#define STORE128(p,r) _mm_store_si128((__m128i *)(p), r)
-
-#define ADD128(x,y) _mm_add_epi64(x,y)
-#define SUB128(x,y) _mm_sub_epi64(x,y)
-#define MUL128(x,y) _mm_mul_epi32(x,y)
-#define MOD128(x, y) _mm_mullo_epi32(x, y )
-#define ROT16(x) _mm_alignr_epi8(x, x, 16)
-
-#define LENGTH 64
-#define J 16
-bintree_t tree;
-
-__m128i T;
-__mmask16 mask;
-
-void write(int len) {
-nodexpand(&tree);
-
-for(int i = 0; i < len ; i++) {
-
- /*Put T as r + p words (aligned)*/
- /*Updating Mask that starts at i and extracts i * 2 bits*/
-
- mask = ((1 << i) - 1) << i * J;
- nodeput(&tree, T & mask, i);
- arth0x(&tree, i );
-}
-}
-
-void red0x(){
-
-__m128i B, N, NX, R, T;
-__m128i ones = _mm_set1_epi64x((uint64_t)1 >> 63);
-uint8_t r = 1;
-uint8_t p = 1;
-
-/*B & N  = B % N */
-N = MOD128(B, N);
-
-/*-1 mod b =  b - 1*/
-NX = SUB128(B, ones);
-
-R = MUL128(B, ones);
-T = SUB128(MUL128(R , N), ones);
-LOAD128(&T);
-/* T in the range 0 ≤ T < RN, stored as an array of r + p words. */
-write(r + p);
-}
-
-int main(){
-red0x();
+int gcd(int a, int b)
+{
+if (b)
+return gcd(b, a % b);
+else
+return a;
 
 }
 
+int pseudo(int r, int n)
+{
+/* Integer N′ in [0, R − 1] such that NN′ ≡ −1 mod R,*/
+for(int i = 0; i < r - 1 ; i++)
+{
+
+   if(n * i == -1 % r)
+   {
+       return i;
+       break;
+   }
+
+}
+
+return 0;
+}
+
+void monto(int r, int n)
+{
+
+    /*what curve are we going to use? The user will give the values */
+
+int nx;
+
+
+int T;
+
+/*  Integer T in the range [0, RN − 1].*/
+T = (r*n) - 1;
+
+/*nx must be a pseudo prime*/
+nx = pseudo(r, n);
+
+/*These values will be used as storage for answers*/
+int s, t, m;
+
+float fx = (float) T;
+
+
+
+
+
+
+/*Integers R and N with gcd(R, N) = 1*/
+/*we will add the one if statement line later*/
+
+
+
+
+if(gcd(r, n) == 1)
+{
+    
+    /* m ← ((T mod R)N′) mod R*/
+    m = ((T % r ) * nx) % r;
+    
+    /*  t ← (T + mN) / R*/
+    t = ((T + (m * n)) / r);
+    
+    if(t >= n)
+    {
+
+    s = t - n;
+        
+    }
+    else
+    {
+        
+    s = t;
+
+    }
+    
+}
+
+
+if(s <= n - 1 && 0 <= s && s == (int) (1 / (float) r * fx) % n && s % 2 == 1)
+{
+    printf("%d", s);
+}
+}
+
+void main()
+{
+
+monto(5, 4);
+}
